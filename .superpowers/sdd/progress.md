@@ -52,3 +52,11 @@ Task 12: complete (commit 9a09349). dev.ps1 launcher + finalized README. Backend
 FINAL whole-branch review (opus): MERGE AFTER FIXES — 1 Important (reconnect timer leak) + minor polish.
 Final-review fixes (commit 566b50c): reconnect timer cancelled on disconnect (+new test), tab title -> product name, usage sums to exactly 100. Backend 7/7, frontend 16/16, build clean.
 === PROJECT COMPLETE: all 12 tasks + theme wiring + final fixes done. Branch merge-ready on master. ===
+
+=== QUICK WINS BATCH (post-completion enhancements) ===
+Decisions: client-side ring buffer for history; time-range labels 1m/5m/15m (live windows).
+Plan: QW1 MetricsHistoryService(+tests) -> QW2 KPI sparkline + alerts filter/badge -> QW3 Toast service+container -> QW4 Dashboard wiring (time-range, pause/resume, last-updated, feed history, toasts).
+Base = 566b50c.
+
+Vercel deploy work: added environment config (useMockData flag) + client-side MetricsSimulator (TS port) + service branches + vercel.json. Prod build = standalone (mock data), dev = real backend. 29/29 tests. Commit d4f253b.
+Quick-wins review fixes committed (seenCritical evict-oldest, toast timer clear, agoLabel). STILL PENDING (come back to): dashboard.component.spec.ts seam tests (Fix 4 from qw review).
