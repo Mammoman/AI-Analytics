@@ -13,12 +13,14 @@ import { Alert } from '../core/metrics.model';
         <div *ngFor="let alert of alerts" class="flex items-center gap-3 py-2 text-sm">
           <span
             class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-            [class.bg-rose-500/20]="alert.level === 'Critical'"
-            [class.text-rose-400]="alert.level === 'Critical'"
-            [class.bg-amber-500/20]="alert.level === 'Warning'"
-            [class.text-amber-400]="alert.level === 'Warning'"
-            [class.bg-sky-500/20]="alert.level === 'Info'"
-            [class.text-sky-400]="alert.level === 'Info'"
+            [ngClass]="{
+              'bg-rose-500/20': alert.level === 'Critical',
+              'text-rose-400': alert.level === 'Critical',
+              'bg-amber-500/20': alert.level === 'Warning',
+              'text-amber-400': alert.level === 'Warning',
+              'bg-sky-500/20': alert.level === 'Info',
+              'text-sky-400': alert.level === 'Info'
+            }"
           >{{ alert.level }}</span>
           <span class="flex-1 text-slate-200 truncate">{{ alert.message }}</span>
           <span class="text-slate-500 text-xs">{{ alert.source }}</span>
