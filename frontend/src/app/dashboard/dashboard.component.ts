@@ -195,7 +195,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   paused = false;
   rangeMs = 300_000;
   lastUpdate = 0;
-  agoLabel = '';
+  agoLabel = '—';
   trendPoints: TrendPoint[] = [];
   kpiSpark: Record<KpiSparkKey, number[]> = {
     totalPredictions: [],
@@ -236,9 +236,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subs.add(this.socket.connected$.subscribe((c) => (this.connected = c)));
     this.subs.add(this.theme.theme$.subscribe((t) => (this.isLightTheme = t === 'light')));
 
-    this.agoIntervalId = setInterval(() => {
+    const updateAgoLabel = () => {
       this.agoLabel = this.lastUpdate === 0 ? '—' : `updated ${Math.round((Date.now() - this.lastUpdate) / 1000)}s ago`;
-    }, 1000);
+    };
+    updateAgoLabel();
+    this.agoIntervalId = setInterval(updateAgoLabel, 1000);
 
     this.recomputeDerived();
   }
@@ -292,7 +294,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.lastCriticalToastAt = Date.now();
         this.seenCritical.add(key);
         if (this.seenCritical.size > 50) {
-          this.seenCritical.clear();
+          const oldest = this.seenCritical.values().next().value;
+          if (oldest !== undefined) this.seenCritical.delete(oldest);
         }
         break;
       }
