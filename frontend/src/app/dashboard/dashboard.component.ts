@@ -5,11 +5,14 @@ import { Subscription } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { MetricsSocketService } from '../core/metrics-socket.service';
-import { MetricsSnapshot } from '../core/metrics.model';
+import { MetricsSnapshot, TrendPoint } from '../core/metrics.model';
 import { ThemeService } from '../core/theme.service';
 import { AuthService } from '../auth/auth.service';
 import { WidgetLayoutService, WidgetId } from './widget-layout.service';
 import { formatCompact } from '../core/format';
+import { MetricsHistoryService } from '../core/metrics-history.service';
+import { ToastService } from '../core/toast.service';
+import { ToastContainerComponent } from '../shared/toast-container.component';
 
 import { KpiTileComponent } from '../widgets/kpi-tile.component';
 import { AccuracyTrendChartComponent } from '../widgets/accuracy-trend-chart.component';
@@ -17,6 +20,8 @@ import { ModelUsageDonutComponent } from '../widgets/model-usage-donut.component
 import { SourceLatencyBarsComponent } from '../widgets/source-latency-bars.component';
 import { RecentAlertsTableComponent } from '../widgets/recent-alerts-table.component';
 import { TopModelsComponent } from '../widgets/top-models.component';
+
+type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'activeModels';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,6 +35,7 @@ import { TopModelsComponent } from '../widgets/top-models.component';
     SourceLatencyBarsComponent,
     RecentAlertsTableComponent,
     TopModelsComponent,
+    ToastContainerComponent,
   ],
   template: `
     <div class="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
@@ -37,13 +43,36 @@ import { TopModelsComponent } from '../widgets/top-models.component';
         <h1 class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">Aetherium AI Analytics Platform</h1>
 
         <div class="flex items-center gap-4">
+          <div class="flex items-center gap-1 rounded-lg p-1 ring-1 ring-slate-200 dark:ring-white/10">
+            <button
+              *ngFor="let opt of rangeOptions"
+              type="button"
+              class="rounded-md px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
+              [ngClass]="{ 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-300': rangeMs === opt.ms }"
+              (click)="setRange(opt.ms)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+
+          <button
+            type="button"
+            class="rounded-lg px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-100 dark:ring-white/10 dark:hover:bg-white/5"
+            [ngClass]="{ 'bg-amber-500/20 text-amber-600 dark:text-amber-300': paused }"
+            (click)="togglePause()"
+          >
+            {{ paused ? 'Resume' : 'Pause' }}
+          </button>
+
           <div class="flex items-center gap-2 text-sm">
             <span
               class="h-2.5 w-2.5 rounded-full"
-              [class.bg-emerald-400]="connected"
+              [class.bg-emerald-400]="connected && !paused"
+              [class.bg-amber-500]="connected && paused"
               [class.bg-rose-500]="!connected"
             ></span>
-            <span class="text-slate-600 dark:text-slate-400">{{ connected ? 'Live' : 'Disconnected' }}</span>
+            <span class="text-slate-600 dark:text-slate-400">{{ connected ? (paused ? 'Paused' : 'Live') : 'Disconnected' }}</span>
+            <span class="text-slate-400 dark:text-slate-500">{{ agoLabel }}</span>
           </div>
 
           <button
@@ -111,14 +140,14 @@ import { TopModelsComponent } from '../widgets/top-models.component';
               @switch (id) {
                 @case ('kpis') {
                   <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                    <app-kpi-tile label="Total Predictions" [value]="fmt(snapshot.kpis.totalPredictions)"></app-kpi-tile>
-                    <app-kpi-tile label="Model Accuracy" [value]="snapshot.kpis.modelAccuracy + '%'"></app-kpi-tile>
-                    <app-kpi-tile label="Data Points" [value]="fmt(snapshot.kpis.dataPoints)"></app-kpi-tile>
-                    <app-kpi-tile label="Active Models" [value]="'' + snapshot.kpis.activeModels"></app-kpi-tile>
+                    <app-kpi-tile label="Total Predictions" [value]="fmt(snapshot.kpis.totalPredictions)" [history]="kpiSpark.totalPredictions"></app-kpi-tile>
+                    <app-kpi-tile label="Model Accuracy" [value]="snapshot.kpis.modelAccuracy + '%'" [history]="kpiSpark.modelAccuracy"></app-kpi-tile>
+                    <app-kpi-tile label="Data Points" [value]="fmt(snapshot.kpis.dataPoints)" [history]="kpiSpark.dataPoints"></app-kpi-tile>
+                    <app-kpi-tile label="Active Models" [value]="'' + snapshot.kpis.activeModels" [history]="kpiSpark.activeModels"></app-kpi-tile>
                   </div>
                 }
                 @case ('trend') {
-                  <app-accuracy-trend-chart [points]="snapshot.accuracyTrend"></app-accuracy-trend-chart>
+                  <app-accuracy-trend-chart [points]="trendPoints"></app-accuracy-trend-chart>
                 }
                 @case ('donut') {
                   <app-model-usage-donut [usage]="snapshot.modelUsage"></app-model-usage-donut>
@@ -151,6 +180,8 @@ import { TopModelsComponent } from '../widgets/top-models.component';
           </div>
         </ng-container>
       </main>
+
+      <app-toast-container></app-toast-container>
     </div>
   `,
 })
@@ -161,9 +192,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isLightTheme = false;
   layout: WidgetId[] = [];
 
+  paused = false;
+  rangeMs = 300_000;
+  lastUpdate = 0;
+  agoLabel = '';
+  trendPoints: TrendPoint[] = [];
+  kpiSpark: Record<KpiSparkKey, number[]> = {
+    totalPredictions: [],
+    modelAccuracy: [],
+    dataPoints: [],
+    activeModels: [],
+  };
+
+  readonly rangeOptions: { label: string; ms: number }[] = [
+    { label: '1m', ms: 60_000 },
+    { label: '5m', ms: 300_000 },
+    { label: '15m', ms: 900_000 },
+  ];
+
   fmt = formatCompact;
 
   private subs = new Subscription();
+  private agoIntervalId: ReturnType<typeof setInterval> | null = null;
+
+  private lastCriticalToastAt = 0;
+  private seenCritical = new Set<string>();
 
   constructor(
     public socket: MetricsSocketService,
@@ -171,20 +224,79 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private auth: AuthService,
     public layoutSvc: WidgetLayoutService,
     private router: Router,
+    private history: MetricsHistoryService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
     this.layout = this.layoutSvc.getLayout();
 
     this.socket.connect();
-    this.subs.add(this.socket.snapshots$.subscribe((snap) => (this.snapshot = snap)));
+    this.subs.add(this.socket.snapshots$.subscribe((snap) => this.onSnapshot(snap)));
     this.subs.add(this.socket.connected$.subscribe((c) => (this.connected = c)));
     this.subs.add(this.theme.theme$.subscribe((t) => (this.isLightTheme = t === 'light')));
+
+    this.agoIntervalId = setInterval(() => {
+      this.agoLabel = this.lastUpdate === 0 ? '—' : `updated ${Math.round((Date.now() - this.lastUpdate) / 1000)}s ago`;
+    }, 1000);
+
+    this.recomputeDerived();
   }
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
     this.socket.disconnect();
+    if (this.agoIntervalId !== null) {
+      clearInterval(this.agoIntervalId);
+    }
+  }
+
+  onSnapshot(snap: MetricsSnapshot): void {
+    if (this.paused) {
+      return;
+    }
+    this.history.push(snap);
+    this.snapshot = snap;
+    this.lastUpdate = Date.now();
+    this.recomputeDerived();
+    this.checkCriticalToasts(snap);
+  }
+
+  setRange(ms: number): void {
+    this.rangeMs = ms;
+    this.recomputeDerived();
+  }
+
+  togglePause(): void {
+    this.paused = !this.paused;
+  }
+
+  private recomputeDerived(): void {
+    this.trendPoints = this.history.accuracyTrend(this.rangeMs);
+    this.kpiSpark = {
+      totalPredictions: this.history.kpiSeries('totalPredictions', this.rangeMs),
+      modelAccuracy: this.history.kpiSeries('modelAccuracy', this.rangeMs),
+      dataPoints: this.history.kpiSeries('dataPoints', this.rangeMs),
+      activeModels: this.history.kpiSeries('activeModels', this.rangeMs),
+    };
+  }
+
+  private checkCriticalToasts(snap: MetricsSnapshot): void {
+    for (const alert of snap.recentAlerts) {
+      if (alert.level !== 'Critical') {
+        continue;
+      }
+      const key = alert.message + '|' + alert.source;
+      if (!this.seenCritical.has(key) && Date.now() - this.lastCriticalToastAt > 6000) {
+        this.toast.show('Critical: ' + alert.message + ' (' + alert.source + ')', 'Critical', 5000);
+        this.lastCriticalToastAt = Date.now();
+        this.seenCritical.add(key);
+        if (this.seenCritical.size > 50) {
+          this.seenCritical.clear();
+        }
+        break;
+      }
+    }
   }
 
   onDrop(event: CdkDragDrop<WidgetId[]>): void {
