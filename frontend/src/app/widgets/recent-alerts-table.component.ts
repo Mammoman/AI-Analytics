@@ -7,9 +7,9 @@ import { Alert } from '../core/metrics.model';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="rounded-xl bg-slate-900 ring-1 ring-white/5 p-4">
-      <h3 class="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Recent Alerts</h3>
-      <div class="flex flex-col divide-y divide-white/5">
+    <div class="rounded-xl bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5 p-4">
+      <h3 class="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-2">Recent Alerts</h3>
+      <div class="flex flex-col divide-y divide-slate-200 dark:divide-white/5">
         <div *ngFor="let alert of alerts" class="flex items-center gap-3 py-2 text-sm">
           <span
             class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
@@ -22,11 +22,11 @@ import { Alert } from '../core/metrics.model';
               'text-sky-400': alert.level === 'Info'
             }"
           >{{ alert.level }}</span>
-          <span class="flex-1 text-slate-200 truncate">{{ alert.message }}</span>
-          <span class="text-slate-500 text-xs">{{ alert.source }}</span>
-          <span class="text-slate-300 text-xs font-medium">{{ alert.value }}</span>
+          <span class="flex-1 text-slate-700 dark:text-slate-200 truncate">{{ alert.message }}</span>
+          <span class="text-slate-500 dark:text-slate-500 text-xs">{{ alert.source }}</span>
+          <span class="text-slate-600 dark:text-slate-300 text-xs font-medium">{{ alert.value }}</span>
         </div>
-        <div *ngIf="!alerts.length" class="py-2 text-sm text-slate-500">No alerts</div>
+        <div *ngIf="!alerts.length" class="py-2 text-sm text-slate-500 dark:text-slate-500">No alerts</div>
       </div>
     </div>
   `,

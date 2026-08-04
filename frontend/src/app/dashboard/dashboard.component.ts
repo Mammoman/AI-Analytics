@@ -32,9 +32,9 @@ import { TopModelsComponent } from '../widgets/top-models.component';
     TopModelsComponent,
   ],
   template: `
-    <div class="min-h-screen bg-slate-950 text-slate-100">
-      <header class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/5 bg-slate-950/90 px-6 py-4 backdrop-blur">
-        <h1 class="text-lg font-semibold tracking-tight text-white">Aetherium AI Analytics Platform</h1>
+    <div class="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      <header class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-slate-200 bg-white/90 px-6 py-4 backdrop-blur dark:border-white/5 dark:bg-slate-950/90">
+        <h1 class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">Aetherium AI Analytics Platform</h1>
 
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-2 text-sm">
@@ -43,12 +43,12 @@ import { TopModelsComponent } from '../widgets/top-models.component';
               [class.bg-emerald-400]="connected"
               [class.bg-rose-500]="!connected"
             ></span>
-            <span class="text-slate-400">{{ connected ? 'Live' : 'Disconnected' }}</span>
+            <span class="text-slate-600 dark:text-slate-400">{{ connected ? 'Live' : 'Disconnected' }}</span>
           </div>
 
           <button
             type="button"
-            class="rounded-lg p-2 text-slate-300 ring-1 ring-white/10 hover:bg-white/5"
+            class="rounded-lg p-2 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/5"
             (click)="theme.toggle()"
             aria-label="Toggle theme"
           >
@@ -58,7 +58,7 @@ import { TopModelsComponent } from '../widgets/top-models.component';
 
           <button
             type="button"
-            class="rounded-lg px-3 py-2 text-sm font-medium ring-1 ring-white/10 hover:bg-white/5"
+            class="rounded-lg px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-100 dark:ring-white/10 dark:hover:bg-white/5"
             [ngClass]="{ 'bg-cyan-500/20': customizing, 'text-cyan-300': customizing }"
             (click)="customizing = !customizing"
           >
@@ -67,7 +67,7 @@ import { TopModelsComponent } from '../widgets/top-models.component';
 
           <button
             type="button"
-            class="rounded-lg px-3 py-2 text-sm font-medium text-rose-300 ring-1 ring-white/10 hover:bg-rose-500/10"
+            class="rounded-lg px-3 py-2 text-sm font-medium text-rose-500 ring-1 ring-slate-200 hover:bg-rose-500/10 dark:text-rose-300 dark:ring-white/10"
             (click)="signOut()"
           >
             Sign Out
@@ -78,8 +78,8 @@ import { TopModelsComponent } from '../widgets/top-models.component';
       <main class="p-6">
         <!-- Connecting skeleton -->
         <div *ngIf="!snapshot" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div class="text-sm text-slate-400 md:col-span-2 xl:col-span-3">Connecting&hellip;</div>
-          <div *ngFor="let n of [1, 2, 3, 4, 5, 6]" class="h-40 animate-pulse rounded-xl bg-slate-900 ring-1 ring-white/5"></div>
+          <div class="text-sm text-slate-600 dark:text-slate-400 md:col-span-2 xl:col-span-3">Connecting&hellip;</div>
+          <div *ngFor="let n of [1, 2, 3, 4, 5, 6]" class="h-40 animate-pulse rounded-xl bg-slate-200 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5"></div>
         </div>
 
         <ng-container *ngIf="snapshot">
@@ -106,7 +106,7 @@ import { TopModelsComponent } from '../widgets/top-models.component';
                 &times;
               </button>
 
-              <div *ngIf="customizing" cdkDragHandle class="mb-1 cursor-move text-center text-xs text-slate-500">&#8942;&#8942; drag &#8942;&#8942;</div>
+              <div *ngIf="customizing" cdkDragHandle class="mb-1 cursor-move text-center text-xs text-slate-500 dark:text-slate-500">&#8942;&#8942; drag &#8942;&#8942;</div>
 
               @switch (id) {
                 @case ('kpis') {
@@ -136,13 +136,13 @@ import { TopModelsComponent } from '../widgets/top-models.component';
             </div>
           </div>
 
-          <div *ngIf="customizing && layoutSvc.available().length" class="mt-6 rounded-xl bg-slate-900 p-4 ring-1 ring-white/5">
-            <h3 class="mb-2 text-xs font-medium uppercase tracking-wide text-slate-400">Add widget</h3>
+          <div *ngIf="customizing && layoutSvc.available().length" class="mt-6 rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5">
+            <h3 class="mb-2 text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">Add widget</h3>
             <div class="flex flex-wrap gap-2">
               <button
                 *ngFor="let id of layoutSvc.available()"
                 type="button"
-                class="rounded-lg px-3 py-1.5 text-sm text-slate-200 ring-1 ring-white/10 hover:bg-white/5"
+                class="rounded-lg px-3 py-1.5 text-sm text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100 dark:text-slate-200 dark:ring-white/10 dark:hover:bg-white/5"
                 (click)="addWidget(id)"
               >
                 + {{ id }}

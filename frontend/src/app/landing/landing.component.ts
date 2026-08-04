@@ -7,7 +7,7 @@ import { ProjectCardComponent } from '../shared/project-card.component';
   imports: [ProjectCardComponent],
   template: `
     <div
-      class="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-slate-950 px-4 py-16"
+      class="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-950 px-4 py-16"
     >
       <div
         class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(34,211,238,0.12),_transparent_60%)]"

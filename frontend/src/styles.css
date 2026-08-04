@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 html, body { height: 100%; }
-body { @apply bg-slate-950 text-slate-100; }
+body { @apply bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100; }
+
+/* ngx-charts theme-aware axis text + gridlines */
+.ngx-charts text { fill: rgb(71 85 105); }            /* slate-600 for light mode */
+.dark .ngx-charts text { fill: rgb(148 163 184); }    /* slate-400 for dark mode */
+.ngx-charts .gridline-path { stroke: rgb(203 213 225); }       /* slate-300 light */
+.dark .ngx-charts .gridline-path { stroke: rgb(255 255 255 / 0.08); } /* subtle dark */
+.ngx-charts .tick text { fill: rgb(71 85 105); }
+.dark .ngx-charts .tick text { fill: rgb(148 163 184); }
 
 /* You can add global styles to this file, and also import other style files */

@@ -9,8 +9,8 @@ import { CHART_SCHEME } from './chart-scheme';
   standalone: true,
   imports: [CommonModule, NgxChartsModule],
   template: `
-    <div class="rounded-xl bg-slate-900 ring-1 ring-white/5 p-4">
-      <h3 class="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Accuracy Trend</h3>
+    <div class="rounded-xl bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5 p-4">
+      <h3 class="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-2">Accuracy Trend</h3>
       <div class="h-56">
         <ngx-charts-area-chart
           [results]="data"
