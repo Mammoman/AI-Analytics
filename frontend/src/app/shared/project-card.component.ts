@@ -156,6 +156,6 @@ export class ProjectCardComponent {
   constructor(private router: Router) {}
 
   go(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/login']);
   }
 }
