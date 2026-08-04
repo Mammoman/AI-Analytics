@@ -15,6 +15,20 @@ import { CommonModule } from '@angular/common';
         [class.text-emerald-400]="delta.startsWith('+')"
         [class.text-rose-400]="!delta.startsWith('+')"
       >{{ delta }}</span>
+      <svg
+        *ngIf="history.length >= 2"
+        class="mt-1 w-full h-7 text-cyan-500 dark:text-cyan-400"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <polyline
+          [attr.points]="sparkPoints"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4"
+          vector-effect="non-scaling-stroke"
+        />
+      </svg>
     </div>
   `,
 })
@@ -22,4 +36,22 @@ export class KpiTileComponent {
   @Input() label = '';
   @Input() value = '';
   @Input() delta?: string;
+  @Input() history: number[] = [];
+
+  get sparkPoints(): string {
+    const n = this.history.length;
+    if (n < 2) {
+      return '';
+    }
+    const min = Math.min(...this.history);
+    const max = Math.max(...this.history);
+    const range = max - min;
+    return this.history
+      .map((v, i) => {
+        const x = (i / (n - 1)) * 100;
+        const y = range === 0 ? 50 : 100 - ((v - min) / range) * 100;
+        return `${x},${y}`;
+      })
+      .join(' ');
+  }
 }

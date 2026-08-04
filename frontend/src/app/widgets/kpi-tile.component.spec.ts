@@ -12,4 +12,22 @@ describe('KpiTileComponent', () => {
     expect(text).toContain('Model Accuracy');
     expect(text).toContain('96.7%');
   });
+
+  it('renders a sparkline polyline when history has >= 2 points', () => {
+    TestBed.configureTestingModule({ imports: [KpiTileComponent] });
+    const fixture = TestBed.createComponent(KpiTileComponent);
+    fixture.componentInstance.history = [1, 2, 3, 4];
+    fixture.detectChanges();
+    const polyline = (fixture.nativeElement as HTMLElement).querySelector('polyline');
+    expect(polyline).toBeTruthy();
+  });
+
+  it('renders no polyline when history is empty', () => {
+    TestBed.configureTestingModule({ imports: [KpiTileComponent] });
+    const fixture = TestBed.createComponent(KpiTileComponent);
+    fixture.componentInstance.history = [];
+    fixture.detectChanges();
+    const polyline = (fixture.nativeElement as HTMLElement).querySelector('polyline');
+    expect(polyline).toBeFalsy();
+  });
 });
