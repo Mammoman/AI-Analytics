@@ -1,0 +1,51 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { MetricsSnapshot } from './metrics.model';
+
+const DEFAULT_URL = 'ws://localhost:8000/stream';
+
+@Injectable({ providedIn: 'root' })
+export class MetricsSocketService {
+  /**
+   * Factory used to create the underlying WebSocket. Defaults to the real
+   * WebSocket constructor. Exposed as a public settable field (rather than a
+   * constructor parameter) so Angular DI can still resolve this service via
+   * `providedIn: 'root'` with no arguments; tests can swap it out before
+   * calling `connect()`.
+   */
+  socketFactory: (url: string) => WebSocket = (url) => new WebSocket(url);
+
+  private socket: WebSocket | null = null;
+  private backoffMs = 1000;
+  private manuallyClosed = false;
+
+  private snapshots = new Subject<MetricsSnapshot>();
+  private connected = new BehaviorSubject<boolean>(false);
+  readonly snapshots$ = this.snapshots.asObservable();
+  readonly connected$ = this.connected.asObservable();
+
+  connect(url: string = DEFAULT_URL): void {
+    this.manuallyClosed = false;
+    this.socket = this.socketFactory(url);
+    this.socket.onopen = () => {
+      this.connected.next(true);
+      this.backoffMs = 1000;
+    };
+    this.socket.onmessage = (e: MessageEvent) => {
+      this.snapshots.next(JSON.parse(e.data) as MetricsSnapshot);
+    };
+    this.socket.onclose = () => {
+      this.connected.next(false);
+      if (!this.manuallyClosed) {
+        setTimeout(() => this.connect(url), this.backoffMs);
+        this.backoffMs = Math.min(this.backoffMs * 2, 15000);
+      }
+    };
+  }
+
+  disconnect(): void {
+    this.manuallyClosed = true;
+    this.socket?.close();
+    this.socket = null;
+  }
+}
