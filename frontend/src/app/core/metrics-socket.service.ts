@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { MetricsSnapshot } from './metrics.model';
-
-const DEFAULT_URL = 'ws://localhost:8000/stream';
+import { MetricsSimulator } from './metrics-simulator';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MetricsSocketService {
@@ -19,13 +19,24 @@ export class MetricsSocketService {
   private backoffMs = 1000;
   private manuallyClosed = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private simulator: MetricsSimulator | null = null;
+  private mockTimer: ReturnType<typeof setInterval> | null = null;
 
   private snapshots = new Subject<MetricsSnapshot>();
   private connected = new BehaviorSubject<boolean>(false);
   readonly snapshots$ = this.snapshots.asObservable();
   readonly connected$ = this.connected.asObservable();
 
-  connect(url: string = DEFAULT_URL): void {
+  connect(url: string = environment.wsUrl): void {
+    if (environment.useMockData) {
+      this.manuallyClosed = false;
+      this.simulator = new MetricsSimulator();
+      this.connected.next(true);
+      this.snapshots.next(this.simulator.tick());
+      this.mockTimer = setInterval(() => this.snapshots.next(this.simulator!.tick()), 1500);
+      return;
+    }
+
     this.manuallyClosed = false;
     this.socket = this.socketFactory(url);
     this.socket.onopen = () => {
@@ -54,7 +65,13 @@ export class MetricsSocketService {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
+    if (this.mockTimer) {
+      clearInterval(this.mockTimer);
+      this.mockTimer = null;
+    }
+    this.simulator = null;
     this.socket?.close();
     this.socket = null;
+    this.connected.next(false);
   }
 }

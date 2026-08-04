@@ -115,6 +115,49 @@ connection starts a fresh walk from the simulator's current state.
 npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
+## Deploy to Vercel
+
+The frontend can also be deployed **standalone** to Vercel — no backend needed.
+In production, the app runs a client-side TypeScript port of the Python
+simulator (`frontend/src/app/core/metrics-simulator.ts`) directly in the
+browser, generating the same shape of `MetricsSnapshot` data on a 1.5s
+interval, and login is mocked locally (any non-empty credentials issue a
+local token — no HTTP call).
+
+This is controlled by an `environment.useMockData` flag:
+
+- `frontend/src/environments/environment.ts` (used by `npm start` / dev, and
+  by unit tests) — `useMockData: false`, points at the real backend at
+  `http://localhost:8000`.
+- `frontend/src/environments/environment.prod.ts` (swapped in via
+  `fileReplacements` in `angular.json` for the `production` build
+  configuration, which `npm run build` uses by default) — `useMockData: true`,
+  no backend URLs needed.
+
+To deploy:
+
+1. Import this repository into Vercel.
+2. Vercel will detect the included `vercel.json` at the repo root, which sets:
+   - `installCommand`: `cd frontend && npm install --legacy-peer-deps`
+   - `buildCommand`: `cd frontend && npm run build`
+   - `outputDirectory`: `frontend/dist/frontend/browser` (the Angular
+     `application` builder nests browser output under a `browser/`
+     subfolder)
+   - a SPA rewrite (`/(.*) -> /index.html`) so client-side routes like
+     `/dashboard` don't 404 on refresh/direct load.
+3. Deploy. No environment variables or backend are required — the deployed
+   app is fully self-contained and uses simulated in-browser data.
+
+Local dev (`npm start` from `frontend/`, together with the Python backend via
+`./dev.ps1` or manual setup above) is unaffected and continues to use the
+real backend and real WebSocket stream, since `npm start` builds with the
+`development` configuration (`environment.ts`, `useMockData: false`).
+
+If you want to use mock/simulated data locally too (e.g. to develop without
+running the backend), you can temporarily set `useMockData: true` in
+`frontend/src/environments/environment.ts`, or build/serve with the
+`production` configuration (`ng serve -c production`).
+
 ## Tech stack
 
 - **Backend:** Python, FastAPI, Uvicorn, WebSockets, pytest
