@@ -40,4 +40,35 @@ describe('MetricsSocketService', () => {
     fake.onopen?.();
     expect(states[states.length - 1]).toBe(true);
   });
+
+  it('does not reconnect after disconnect cancels a pending reconnect timer', () => {
+    jasmine.clock().install();
+    try {
+      let factoryCalls = 0;
+      const service = new MetricsSocketService();
+      let currentFake = new FakeSocket();
+      service.socketFactory = () => {
+        factoryCalls++;
+        currentFake = new FakeSocket();
+        return currentFake as unknown as WebSocket;
+      };
+
+      service.connect();
+      expect(factoryCalls).toBe(1);
+      currentFake.onopen?.();
+
+      // Simulate the server dropping the connection, which schedules a reconnect.
+      currentFake.onclose?.();
+
+      // Disconnect before the pending reconnect timer fires.
+      service.disconnect();
+
+      // Advance well past the backoff delay.
+      jasmine.clock().tick(20000);
+
+      expect(factoryCalls).toBe(1);
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
 });

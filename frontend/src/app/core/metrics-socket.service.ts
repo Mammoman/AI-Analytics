@@ -18,6 +18,7 @@ export class MetricsSocketService {
   private socket: WebSocket | null = null;
   private backoffMs = 1000;
   private manuallyClosed = false;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   private snapshots = new Subject<MetricsSnapshot>();
   private connected = new BehaviorSubject<boolean>(false);
@@ -28,6 +29,10 @@ export class MetricsSocketService {
     this.manuallyClosed = false;
     this.socket = this.socketFactory(url);
     this.socket.onopen = () => {
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
       this.connected.next(true);
       this.backoffMs = 1000;
     };
@@ -37,7 +42,7 @@ export class MetricsSocketService {
     this.socket.onclose = () => {
       this.connected.next(false);
       if (!this.manuallyClosed) {
-        setTimeout(() => this.connect(url), this.backoffMs);
+        this.reconnectTimer = setTimeout(() => this.connect(url), this.backoffMs);
         this.backoffMs = Math.min(this.backoffMs * 2, 15000);
       }
     };
@@ -45,6 +50,10 @@ export class MetricsSocketService {
 
   disconnect(): void {
     this.manuallyClosed = true;
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
     this.socket?.close();
     this.socket = null;
   }

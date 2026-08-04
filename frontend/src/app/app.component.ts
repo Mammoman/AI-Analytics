@@ -9,7 +9,7 @@ import { ThemeService } from './core/theme.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  title = 'frontend';
+  title = 'Aetherium AI Analytics Platform';
 
   constructor(private theme: ThemeService) {}
 

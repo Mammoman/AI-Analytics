@@ -33,6 +33,9 @@ class MetricsSimulator:
         raw = [_clamp(u + d, 5.0, 60.0) for u, d in zip(self._usage, deltas)]
         total = sum(raw)
         self._usage = [round(r / total * 100.0, 1) for r in raw]
+        residual = round(100.0 - sum(self._usage), 1)
+        i_max = self._usage.index(max(self._usage))
+        self._usage[i_max] = round(self._usage[i_max] + residual, 1)
         return self._usage
 
     def tick(self) -> MetricsSnapshot:
