@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent) },
@@ -6,8 +7,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
-    // TODO(Task 7): add authGuard
-    // canActivate: [() => import('./auth/auth.guard').then(m => m.authGuard)],
+    canActivate: [authGuard],
   },
   { path: '**', redirectTo: '' },
 ];
