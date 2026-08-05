@@ -76,3 +76,12 @@ TIER 1 BUNDLE COMPLETE:
   C SettingsService + settings page, live-wired (refresh interval restarts stream, notifications gate toasts) (2813326). 6 new specs.
   D live Alerts feed (filters/counts/states) + Predictions/Reports coming-soon + reusable EmptyState (ef7d340).
   35/35 tests. HEAD ef7d340.
+
+TIER 1 VERIFIED LIVE (standalone prod build, backend dead):
+  Login "ada lovelace" -> /app/dashboard, avatar "AL", token+user stored.
+  Shell sidebar nav (Dashboard/Predictions/Alerts/Reports/Settings) wraps all pages.
+  Alerts: live feed cap 50, filter counts (Critical 5/Warning 15/Info 30), relative times, shared stream survives nav.
+  Settings: 4 sections, interval change persisted to localStorage (3000). Notifications toggle + Reset layout present.
+  404: branded page renders for unknown route with back links.
+  No horizontal overflow. 35/35 tests, prod build clean.
+STILL PENDING (optional): dashboard.component.spec.ts seam tests; minor polish (semantic alerts table, ScaleType enum, login autocomplete).
