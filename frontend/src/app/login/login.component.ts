@@ -20,6 +20,7 @@ import { AuthService } from '../auth/auth.service';
               id="username"
               name="username"
               type="text"
+              autocomplete="username"
               [(ngModel)]="username"
               class="w-full rounded-md bg-white border border-slate-300 text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             />
@@ -30,6 +31,7 @@ import { AuthService } from '../auth/auth.service';
               id="password"
               name="password"
               type="password"
+              autocomplete="current-password"
               [(ngModel)]="password"
               class="w-full rounded-md bg-white border border-slate-300 text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             />
@@ -41,9 +43,10 @@ import { AuthService } from '../auth/auth.service';
 
           <button
             type="submit"
-            class="w-full rounded-md bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold py-2 transition-colors"
+            [disabled]="submitting"
+            class="w-full rounded-md bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold py-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Sign In
+            {{ submitting ? 'Signing in…' : 'Sign In' }}
           </button>
         </form>
 
@@ -56,6 +59,7 @@ export class LoginComponent implements OnInit {
   username = '';
   password = '';
   error = '';
+  submitting = false;
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -68,9 +72,16 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     this.error = '';
+    this.submitting = true;
     this.auth.login(this.username, this.password).subscribe({
-      next: () => this.router.navigate(['/app/dashboard']),
-      error: () => (this.error = 'Sign in failed'),
+      next: () => {
+        this.submitting = false;
+        this.router.navigate(['/app/dashboard']);
+      },
+      error: () => {
+        this.submitting = false;
+        this.error = 'Sign in failed';
+      },
     });
   }
 }

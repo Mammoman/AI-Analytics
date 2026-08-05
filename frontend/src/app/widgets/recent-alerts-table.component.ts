@@ -26,23 +26,39 @@ import { Alert } from '../core/metrics.model';
             : 'bg-transparent text-slate-600 dark:text-slate-400 ring-slate-200 dark:ring-white/10'"
         >{{ level }}</button>
       </div>
-      <div class="flex flex-col divide-y divide-slate-200 dark:divide-white/5 overflow-x-auto">
-        <div *ngFor="let alert of filteredAlerts" class="flex items-center gap-2 sm:gap-3 py-2 text-sm min-w-0">
-          <span
-            class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-            [ngClass]="{
-              'bg-rose-500/20': alert.level === 'Critical',
-              'text-rose-400': alert.level === 'Critical',
-              'bg-amber-500/20': alert.level === 'Warning',
-              'text-amber-400': alert.level === 'Warning',
-              'bg-sky-500/20': alert.level === 'Info',
-              'text-sky-400': alert.level === 'Info'
-            }"
-          >{{ alert.level }}</span>
-          <span class="min-w-0 flex-1 text-slate-700 dark:text-slate-200 truncate">{{ alert.message }}</span>
-          <span class="shrink-0 text-slate-500 dark:text-slate-500 text-xs">{{ alert.source }}</span>
-          <span class="shrink-0 text-slate-600 dark:text-slate-300 text-xs font-medium">{{ alert.value }}</span>
-        </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-0 text-sm">
+          <thead>
+            <tr class="divide-x divide-transparent">
+              <th scope="col" class="py-2 pr-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">Level</th>
+              <th scope="col" class="py-2 pr-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">Message</th>
+              <th scope="col" class="py-2 pr-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">Source</th>
+              <th scope="col" class="py-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">Value</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-white/5">
+            <tr *ngFor="let alert of filteredAlerts">
+              <td class="py-2 pr-2 align-middle">
+                <span
+                  class="inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                  [ngClass]="{
+                    'bg-rose-500/20': alert.level === 'Critical',
+                    'text-rose-400': alert.level === 'Critical',
+                    'bg-amber-500/20': alert.level === 'Warning',
+                    'text-amber-400': alert.level === 'Warning',
+                    'bg-sky-500/20': alert.level === 'Info',
+                    'text-sky-400': alert.level === 'Info'
+                  }"
+                >{{ alert.level }}</span>
+              </td>
+              <td class="min-w-0 max-w-0 py-2 pr-2 text-slate-700 dark:text-slate-200">
+                <span class="block truncate">{{ alert.message }}</span>
+              </td>
+              <td class="py-2 pr-2 text-xs text-slate-500 dark:text-slate-500">{{ alert.source }}</td>
+              <td class="py-2 text-xs font-medium text-slate-600 dark:text-slate-300">{{ alert.value }}</td>
+            </tr>
+          </tbody>
+        </table>
         <div *ngIf="!filteredAlerts.length" class="py-2 text-sm text-slate-500 dark:text-slate-500">No alerts</div>
       </div>
     </div>
