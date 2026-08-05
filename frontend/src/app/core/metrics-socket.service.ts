@@ -3,6 +3,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { MetricsSnapshot } from './metrics.model';
 import { MetricsSimulator } from './metrics-simulator';
 import { environment } from '../../environments/environment';
+import { SettingsService } from './settings.service';
 
 @Injectable({ providedIn: 'root' })
 export class MetricsSocketService {
@@ -27,13 +28,20 @@ export class MetricsSocketService {
   readonly snapshots$ = this.snapshots.asObservable();
   readonly connected$ = this.connected.asObservable();
 
+  constructor(private settings: SettingsService = new SettingsService()) {
+    this.settings.settings$.subscribe((s) => this.applyMockInterval(s.refreshIntervalMs));
+  }
+
   connect(url: string = environment.wsUrl): void {
     if (environment.useMockData) {
       this.manuallyClosed = false;
       this.simulator = new MetricsSimulator();
       this.connected.next(true);
       this.snapshots.next(this.simulator.tick());
-      this.mockTimer = setInterval(() => this.snapshots.next(this.simulator!.tick()), 1500);
+      this.mockTimer = setInterval(
+        () => this.snapshots.next(this.simulator!.tick()),
+        this.settings.current.refreshIntervalMs,
+      );
       return;
     }
 
@@ -73,5 +81,17 @@ export class MetricsSocketService {
     this.socket?.close();
     this.socket = null;
     this.connected.next(false);
+  }
+
+  /**
+   * Restarts the mock timer at the given interval while a mock connection is
+   * active. No-op if not currently running in mock mode.
+   */
+  applyMockInterval(ms: number): void {
+    if (!this.mockTimer || !this.simulator) {
+      return;
+    }
+    clearInterval(this.mockTimer);
+    this.mockTimer = setInterval(() => this.snapshots.next(this.simulator!.tick()), ms);
   }
 }

@@ -10,6 +10,7 @@ import { WidgetLayoutService, WidgetId } from './widget-layout.service';
 import { formatCompact } from '../core/format';
 import { MetricsHistoryService } from '../core/metrics-history.service';
 import { ToastService } from '../core/toast.service';
+import { SettingsService } from '../core/settings.service';
 import { ToastContainerComponent } from '../shared/toast-container.component';
 
 import { KpiTileComponent } from '../widgets/kpi-tile.component';
@@ -203,6 +204,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public layoutSvc: WidgetLayoutService,
     private history: MetricsHistoryService,
     private toast: ToastService,
+    private settings: SettingsService,
   ) {}
 
   ngOnInit(): void {
@@ -267,7 +269,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
       const key = alert.message + '|' + alert.source;
       if (!this.seenCritical.has(key) && Date.now() - this.lastCriticalToastAt > 6000) {
-        this.toast.show('Critical: ' + alert.message + ' (' + alert.source + ')', 'Critical', 5000);
+        if (this.settings.current.notificationsEnabled) {
+          this.toast.show('Critical: ' + alert.message + ' (' + alert.source + ')', 'Critical', 5000);
+        }
         this.lastCriticalToastAt = Date.now();
         this.seenCritical.add(key);
         if (this.seenCritical.size > 50) {
