@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
@@ -52,12 +52,19 @@ import { AuthService } from '../auth/auth.service';
     </div>
   `,
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username = '';
   password = '';
   error = '';
 
   constructor(private auth: AuthService, private router: Router) {}
+
+  ngOnInit(): void {
+    // Auto-forward straight to the dashboard if already signed in.
+    if (this.auth.isAuthenticated()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   onSubmit(): void {
     this.error = '';

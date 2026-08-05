@@ -39,15 +39,15 @@ type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'active
   ],
   template: `
     <div class="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <header class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-slate-200 bg-white/90 px-6 py-4 backdrop-blur dark:border-white/5 dark:bg-slate-950/90">
-        <h1 class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">Aetherium AI Analytics Platform</h1>
+      <header class="sticky top-0 z-10 flex flex-col gap-3 border-b border-slate-200 bg-white/90 px-3 py-3 backdrop-blur dark:border-white/5 dark:bg-slate-950/90 sm:px-4 sm:py-4 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:px-6">
+        <h1 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white sm:text-lg">Aetherium AI Analytics Platform</h1>
 
-        <div class="flex items-center gap-4">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4">
           <div class="flex items-center gap-1 rounded-lg p-1 ring-1 ring-slate-200 dark:ring-white/10">
             <button
               *ngFor="let opt of rangeOptions"
               type="button"
-              class="rounded-md px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
+              class="rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
               [ngClass]="{ 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-300': rangeMs === opt.ms }"
               (click)="setRange(opt.ms)"
             >
@@ -66,13 +66,13 @@ type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'active
 
           <div class="flex items-center gap-2 text-sm">
             <span
-              class="h-2.5 w-2.5 rounded-full"
+              class="h-2.5 w-2.5 shrink-0 rounded-full"
               [class.bg-emerald-400]="connected && !paused"
               [class.bg-amber-500]="connected && paused"
               [class.bg-rose-500]="!connected"
             ></span>
             <span class="text-slate-600 dark:text-slate-400">{{ connected ? (paused ? 'Paused' : 'Live') : 'Disconnected' }}</span>
-            <span class="text-slate-400 dark:text-slate-500">{{ agoLabel }}</span>
+            <span class="hidden text-slate-400 dark:text-slate-500 sm:inline">{{ agoLabel }}</span>
           </div>
 
           <button
@@ -104,9 +104,9 @@ type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'active
         </div>
       </header>
 
-      <main class="p-6">
+      <main class="p-3 sm:p-4 lg:p-6">
         <!-- Connecting skeleton -->
-        <div *ngIf="!snapshot" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div *ngIf="!snapshot" class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
           <div class="text-sm text-slate-600 dark:text-slate-400 md:col-span-2 xl:col-span-3">Connecting&hellip;</div>
           <div *ngFor="let n of [1, 2, 3, 4, 5, 6]" class="h-40 animate-pulse rounded-xl bg-slate-200 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5"></div>
         </div>
@@ -116,14 +116,13 @@ type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'active
             cdkDropList
             (cdkDropListDropped)="onDrop($event)"
             [cdkDropListDisabled]="!customizing"
-            class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+            class="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2"
           >
             <div
               *ngFor="let id of layout"
               cdkDrag
-              class="widget relative"
-              [class.xl:col-span-3]="id === 'kpis'"
-              [class.md:col-span-2]="id === 'kpis'"
+              class="widget relative min-w-0"
+              [class.lg:col-span-2]="id === 'kpis'"
             >
               <button
                 *ngIf="customizing"
@@ -139,7 +138,7 @@ type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'active
 
               @switch (id) {
                 @case ('kpis') {
-                  <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                     <app-kpi-tile label="Total Predictions" [value]="fmt(snapshot.kpis.totalPredictions)" [history]="kpiSpark.totalPredictions"></app-kpi-tile>
                     <app-kpi-tile label="Model Accuracy" [value]="snapshot.kpis.modelAccuracy + '%'" [history]="kpiSpark.modelAccuracy"></app-kpi-tile>
                     <app-kpi-tile label="Data Points" [value]="fmt(snapshot.kpis.dataPoints)" [history]="kpiSpark.dataPoints"></app-kpi-tile>

@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
         <div class="relative p-4 pb-0">
           <div class="rounded-xl bg-slate-950/70 border border-white/5 p-3">
             <!-- KPI chips -->
-            <div class="grid grid-cols-4 gap-2 mb-3">
+            <div class="grid grid-cols-2 gap-2 mb-3 sm:grid-cols-4">
               <div class="rounded-lg bg-slate-900/80 border border-white/5 px-2 py-1.5 text-center">
                 <div class="text-[11px] font-bold text-cyan-300 leading-tight">8.9M</div>
                 <div class="text-[8px] text-slate-500 leading-tight">Events</div>

@@ -6,9 +6,9 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="rounded-xl bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5 p-4 flex flex-col gap-1">
-      <span class="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">{{ label }}</span>
-      <span class="text-3xl font-semibold text-slate-900 dark:text-white">{{ value }}</span>
+    <div class="w-full min-w-0 rounded-xl bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5 p-3 sm:p-4 flex flex-col gap-1">
+      <span class="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400 truncate">{{ label }}</span>
+      <span class="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white truncate">{{ value }}</span>
       <span
         *ngIf="delta"
         class="text-sm font-medium"

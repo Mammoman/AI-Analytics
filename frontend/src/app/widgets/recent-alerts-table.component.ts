@@ -7,15 +7,15 @@ import { Alert } from '../core/metrics.model';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="rounded-xl bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5 p-4">
-      <div class="flex items-center justify-between mb-2">
+    <div class="w-full min-w-0 rounded-xl bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/5 p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <h3 class="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">Recent Alerts</h3>
         <span
           *ngIf="criticalCount > 0"
           class="shrink-0 rounded-full bg-rose-500/20 text-rose-500 dark:text-rose-400 px-2 py-0.5 text-xs font-semibold"
         >{{ criticalCount }} Critical</span>
       </div>
-      <div class="flex items-center gap-1.5 mb-2">
+      <div class="flex flex-wrap items-center gap-1.5 mb-2">
         <button
           *ngFor="let level of levels"
           type="button"
@@ -26,8 +26,8 @@ import { Alert } from '../core/metrics.model';
             : 'bg-transparent text-slate-600 dark:text-slate-400 ring-slate-200 dark:ring-white/10'"
         >{{ level }}</button>
       </div>
-      <div class="flex flex-col divide-y divide-slate-200 dark:divide-white/5">
-        <div *ngFor="let alert of filteredAlerts" class="flex items-center gap-3 py-2 text-sm">
+      <div class="flex flex-col divide-y divide-slate-200 dark:divide-white/5 overflow-x-auto">
+        <div *ngFor="let alert of filteredAlerts" class="flex items-center gap-2 sm:gap-3 py-2 text-sm min-w-0">
           <span
             class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
             [ngClass]="{
@@ -39,9 +39,9 @@ import { Alert } from '../core/metrics.model';
               'text-sky-400': alert.level === 'Info'
             }"
           >{{ alert.level }}</span>
-          <span class="flex-1 text-slate-700 dark:text-slate-200 truncate">{{ alert.message }}</span>
-          <span class="text-slate-500 dark:text-slate-500 text-xs">{{ alert.source }}</span>
-          <span class="text-slate-600 dark:text-slate-300 text-xs font-medium">{{ alert.value }}</span>
+          <span class="min-w-0 flex-1 text-slate-700 dark:text-slate-200 truncate">{{ alert.message }}</span>
+          <span class="shrink-0 text-slate-500 dark:text-slate-500 text-xs">{{ alert.source }}</span>
+          <span class="shrink-0 text-slate-600 dark:text-slate-300 text-xs font-medium">{{ alert.value }}</span>
         </div>
         <div *ngIf="!filteredAlerts.length" class="py-2 text-sm text-slate-500 dark:text-slate-500">No alerts</div>
       </div>
