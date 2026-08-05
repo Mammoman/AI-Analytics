@@ -69,3 +69,10 @@ STILL PENDING (come back to): dashboard.component.spec.ts seam tests; optional m
 Scope: functional-lite. Dashboard(live), Alerts(list+filters off stream), Settings(theme/refresh/notifications, persisted+wired), Predictions/Reports(coming-soon). User menu identity from login username.
 Routing: / landing (public), /login (public), /app/* shell (guarded) children dashboard|alerts|predictions|reports|settings, ** -> 404.
 Tasks: A shell+routing+sidebar+404 -> B user menu+identity -> C settings+SettingsService -> D alerts page + EmptyState + placeholders + states. Base 9c0e502.
+
+TIER 1 BUNDLE COMPLETE:
+  A shell+routing+sidebar+404 (507852f) - was already built untracked; verified+committed.
+  B user menu + identity from login username (890b628).
+  C SettingsService + settings page, live-wired (refresh interval restarts stream, notifications gate toasts) (2813326). 6 new specs.
+  D live Alerts feed (filters/counts/states) + Predictions/Reports coming-soon + reusable EmptyState (ef7d340).
+  35/35 tests. HEAD ef7d340.
