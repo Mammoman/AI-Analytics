@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ThemeService } from '../core/theme.service';
@@ -113,13 +113,63 @@ interface NavItem {
               <span *ngIf="isLightTheme">☀️</span>
             </button>
 
-            <button
-              type="button"
-              class="rounded-lg px-3 py-2 text-sm font-medium text-rose-500 ring-1 ring-slate-200 hover:bg-rose-500/10 dark:text-rose-300 dark:ring-white/10"
-              (click)="signOut()"
-            >
-              Sign Out
-            </button>
+            <div class="relative" #userMenu>
+              <button
+                type="button"
+                class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100 dark:text-slate-200 dark:ring-white/10 dark:hover:bg-white/5"
+                (click)="toggleMenu($event)"
+                aria-haspopup="true"
+                [attr.aria-expanded]="menuOpen"
+              >
+                <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cyan-500 text-xs font-semibold text-white">
+                  {{ initials }}
+                </span>
+                <span class="hidden sm:inline">{{ userName }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 shrink-0">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div
+                *ngIf="menuOpen"
+                class="absolute right-0 z-50 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/10"
+              >
+                <div class="flex items-center gap-3 px-4 py-3">
+                  <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-cyan-500 text-xs font-semibold text-white">
+                    {{ initials }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="truncate text-sm font-semibold text-slate-900 dark:text-white">{{ userName }}</p>
+                    <p class="truncate text-xs text-slate-500 dark:text-slate-400">Signed in as &#64;{{ userName }}</p>
+                  </div>
+                </div>
+
+                <div class="border-t border-slate-200 dark:border-white/10"></div>
+
+                <a
+                  routerLink="/app/settings"
+                  class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5"
+                  (click)="menuOpen = false"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Settings
+                </a>
+
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-rose-500 hover:bg-rose-500/10 dark:text-rose-300"
+                  (click)="signOut()"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Sign out
+                </button>
+              </div>
+            </div>
           </div>
         </header>
 
@@ -133,6 +183,11 @@ interface NavItem {
 export class ShellComponent {
   sidebarOpen = false;
   isLightTheme = false;
+  menuOpen = false;
+  userName = '';
+  initials = '';
+
+  @ViewChild('userMenu') private userMenuRef?: ElementRef<HTMLElement>;
 
   navItems: NavItem[] = [
     { label: 'Dashboard', path: '/app/dashboard', icon: 'dashboard' },
@@ -142,11 +197,39 @@ export class ShellComponent {
     { label: 'Settings', path: '/app/settings', icon: 'settings' },
   ];
 
-  constructor(public theme: ThemeService, private auth: AuthService, private router: Router) {
+  constructor(
+    public theme: ThemeService,
+    private auth: AuthService,
+    private router: Router,
+  ) {
     this.theme.theme$.subscribe((t) => (this.isLightTheme = t === 'light'));
+    this.userName = this.auth.getUser();
+    this.initials = this.computeInitials(this.userName);
+  }
+
+  private computeInitials(name: string): string {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  toggleMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.menuOpen = !this.menuOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.menuOpen) return;
+    const target = event.target as Node;
+    if (!this.userMenuRef?.nativeElement.contains(target)) {
+      this.menuOpen = false;
+    }
   }
 
   signOut(): void {
+    this.menuOpen = false;
     this.auth.logout();
     this.router.navigate(['/']);
   }

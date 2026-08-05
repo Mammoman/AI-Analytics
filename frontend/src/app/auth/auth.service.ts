@@ -4,6 +4,7 @@ import { Observable, map, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 const KEY = 'aetherium-token';
+const USER_KEY = 'aetherium-user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -12,14 +13,28 @@ export class AuthService {
   login(username: string, password: string): Observable<void> {
     if (environment.useMockData) {
       this.setToken('mock-' + Date.now().toString(36));
+      this.setUser(username);
       return of(undefined);
     }
     return this.http
       .post<{ token: string }>(environment.apiBaseUrl + '/auth/login', { username, password })
-      .pipe(map(res => { this.setToken(res.token); }));
+      .pipe(map(res => { this.setToken(res.token); this.setUser(username); }));
   }
 
   setToken(token: string): void { localStorage.setItem(KEY, token); }
   isAuthenticated(): boolean { return !!localStorage.getItem(KEY); }
-  logout(): void { localStorage.removeItem(KEY); }
+
+  setUser(name: string): void {
+    const trimmed = (name || '').trim();
+    localStorage.setItem(USER_KEY, trimmed || 'Demo User');
+  }
+
+  getUser(): string {
+    return localStorage.getItem(USER_KEY) || 'Demo User';
+  }
+
+  logout(): void {
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(USER_KEY);
+  }
 }
