@@ -1,13 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { MetricsSocketService } from '../core/metrics-socket.service';
 import { MetricsSnapshot, TrendPoint } from '../core/metrics.model';
 import { ThemeService } from '../core/theme.service';
-import { AuthService } from '../auth/auth.service';
 import { WidgetLayoutService, WidgetId } from './widget-layout.service';
 import { formatCompact } from '../core/format';
 import { MetricsHistoryService } from '../core/metrics-history.service';
@@ -77,29 +75,11 @@ type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'active
 
           <button
             type="button"
-            class="rounded-lg p-2 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/5"
-            (click)="theme.toggle()"
-            aria-label="Toggle theme"
-          >
-            <span *ngIf="!isLightTheme">🌙</span>
-            <span *ngIf="isLightTheme">☀️</span>
-          </button>
-
-          <button
-            type="button"
             class="rounded-lg px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-100 dark:ring-white/10 dark:hover:bg-white/5"
             [ngClass]="{ 'bg-cyan-500/20': customizing, 'text-cyan-300': customizing }"
             (click)="customizing = !customizing"
           >
             Customize
-          </button>
-
-          <button
-            type="button"
-            class="rounded-lg px-3 py-2 text-sm font-medium text-rose-500 ring-1 ring-slate-200 hover:bg-rose-500/10 dark:text-rose-300 dark:ring-white/10"
-            (click)="signOut()"
-          >
-            Sign Out
           </button>
         </div>
       </header>
@@ -220,9 +200,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     public socket: MetricsSocketService,
     public theme: ThemeService,
-    private auth: AuthService,
     public layoutSvc: WidgetLayoutService,
-    private router: Router,
     private history: MetricsHistoryService,
     private toast: ToastService,
   ) {}
@@ -314,10 +292,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
   addWidget(id: WidgetId): void {
     this.layoutSvc.add(id);
     this.layout = this.layoutSvc.getLayout();
-  }
-
-  signOut(): void {
-    this.auth.logout();
-    this.router.navigate(['/']);
   }
 }

@@ -62,14 +62,14 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     // Auto-forward straight to the dashboard if already signed in.
     if (this.auth.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/app/dashboard']);
     }
   }
 
   onSubmit(): void {
     this.error = '';
     this.auth.login(this.username, this.password).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => this.router.navigate(['/app/dashboard']),
       error: () => (this.error = 'Sign in failed'),
     });
   }
