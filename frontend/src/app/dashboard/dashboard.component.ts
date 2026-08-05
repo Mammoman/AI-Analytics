@@ -12,6 +12,7 @@ import { MetricsHistoryService } from '../core/metrics-history.service';
 import { ToastService } from '../core/toast.service';
 import { SettingsService } from '../core/settings.service';
 import { ToastContainerComponent } from '../shared/toast-container.component';
+import { downloadFile, toJson } from '../core/export.util';
 
 import { KpiTileComponent } from '../widgets/kpi-tile.component';
 import { AccuracyTrendChartComponent } from '../widgets/accuracy-trend-chart.component';
@@ -81,6 +82,15 @@ type KpiSparkKey = 'totalPredictions' | 'modelAccuracy' | 'dataPoints' | 'active
             (click)="customizing = !customizing"
           >
             Customize
+          </button>
+
+          <button
+            type="button"
+            class="rounded-lg px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-100 dark:ring-white/10 dark:hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="!snapshot"
+            (click)="exportSnapshot()"
+          >
+            Export
           </button>
         </div>
       </header>
@@ -250,6 +260,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   togglePause(): void {
     this.paused = !this.paused;
+  }
+
+  exportSnapshot(): void {
+    if (!this.snapshot) {
+      return;
+    }
+    downloadFile(`aetherium-dashboard-${Date.now()}.json`, toJson(this.snapshot), 'application/json');
   }
 
   private recomputeDerived(): void {
