@@ -34,6 +34,16 @@ export interface TopModel {
   delta: number;
 }
 
+export interface Prediction {
+  id: string;
+  model: string;
+  horizon: string;
+  predicted: number;
+  confidence: number;
+  trend: 'up' | 'down' | 'flat';
+  updatedAt: string;
+}
+
 export interface MetricsSnapshot {
   timestamp: string;
   kpis: Kpis;
