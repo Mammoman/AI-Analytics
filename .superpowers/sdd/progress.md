@@ -85,3 +85,5 @@ TIER 1 VERIFIED LIVE (standalone prod build, backend dead):
   404: branded page renders for unknown route with back links.
   No horizontal overflow. 35/35 tests, prod build clean.
 STILL PENDING (optional): dashboard.component.spec.ts seam tests; minor polish (semantic alerts table, ScaleType enum, login autocomplete).
+
+POLISH BATCH (commit aaee8ac): dashboard.component.spec.ts seam tests (snapshot store, pause freeze/resume, critical-toast gated by notifications) + semantic <table> for recent-alerts widget + ScaleType.Ordinal enum + login autocomplete/submitting state. 39/39 tests. All earlier deferred minors now resolved.
