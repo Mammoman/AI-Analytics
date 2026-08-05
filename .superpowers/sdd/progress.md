@@ -60,3 +60,12 @@ Base = 566b50c.
 
 Vercel deploy work: added environment config (useMockData flag) + client-side MetricsSimulator (TS port) + service branches + vercel.json. Prod build = standalone (mock data), dev = real backend. 29/29 tests. Commit d4f253b.
 Quick-wins review fixes committed (seenCritical evict-oldest, toast timer clear, agoLabel). STILL PENDING (come back to): dashboard.component.spec.ts seam tests (Fix 4 from qw review).
+
+Login auto-forward: LoginComponent ngOnInit -> if authenticated, navigate /dashboard. Learn More routes directly to /login (commit f662f34). 
+Responsive pass (commit 9c0e502): mobile-first across landing/login/dashboard/widgets. VERIFIED LIVE on standalone prod build (backend dead) — 375px: no overflow, KPIs 2x2, widgets 1col; 1280px: KPIs 4-up, widgets 2col. Live sim data flowing. 29/29 tests.
+STILL PENDING (come back to): dashboard.component.spec.ts seam tests; optional minor polish (semantic alerts table, ScaleType enum, login autocomplete).
+
+=== TIER 1 BUNDLE (company-grade polish) ===
+Scope: functional-lite. Dashboard(live), Alerts(list+filters off stream), Settings(theme/refresh/notifications, persisted+wired), Predictions/Reports(coming-soon). User menu identity from login username.
+Routing: / landing (public), /login (public), /app/* shell (guarded) children dashboard|alerts|predictions|reports|settings, ** -> 404.
+Tasks: A shell+routing+sidebar+404 -> B user menu+identity -> C settings+SettingsService -> D alerts page + EmptyState + placeholders + states. Base 9c0e502.
