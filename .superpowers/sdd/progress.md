@@ -87,3 +87,8 @@ TIER 1 VERIFIED LIVE (standalone prod build, backend dead):
 STILL PENDING (optional): dashboard.component.spec.ts seam tests; minor polish (semantic alerts table, ScaleType enum, login autocomplete).
 
 POLISH BATCH (commit aaee8ac): dashboard.component.spec.ts seam tests (snapshot store, pause freeze/resume, critical-toast gated by notifications) + semantic <table> for recent-alerts widget + ScaleType.Ordinal enum + login autocomplete/submitting state. 39/39 tests. All earlier deferred minors now resolved.
+
+=== TIER 2 ===
+T2-A Predictions (daaf9bf): Prediction model + PredictionsService (12 rows, 3s random-walk refresh, confidence-by-horizon) + page (filter/sort table + ngx-charts forecast). 6 new specs.
+T2-B Reports+Export (b79e756): export.util.ts (toCsv/toJson/downloadFile + 5 section flatteners) + Reports page (5 export cards + full-snapshot export) + dashboard Export button. 10 new specs.
+55/55 tests. HEAD b79e756.
